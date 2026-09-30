@@ -128,6 +128,9 @@
       if (!auth) return;
       currentUser = auth.session.user;
 
+      console.log('CURRENT USER:', currentUser);
+      console.log('USER ID:', currentUser.id);
+
       // Initialize map
       map = L.map('map').setView([28.6139, 77.2090], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -259,6 +262,7 @@
         const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
+        console.log('AUTH USER BEFORE UPLOAD:', currentUser?.id);
         const { error: uploadError, data: uploadData } = await supabaseClient.storage
           .from('reports-before')
           .upload(filePath, compressedImageBlob, { contentType: 'image/jpeg' });
