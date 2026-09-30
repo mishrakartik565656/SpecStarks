@@ -156,7 +156,7 @@
 
               <div id="upload-${report.id}" class="upload-section">
                 <h4>Upload After Photo</h4>
-                <input type="file" accept="image/*" onchange="handlePhotoUpload(event, '${report.id}')" style="margin-bottom: 0.5rem;">
+                <input type="file" accept="image/*" capture="environment" onchange="handlePhotoUpload(event, '${report.id}')" style="margin-bottom: 0.5rem;">
                 <img id="preview-${report.id}" class="photo-preview" alt="Preview">
                 <textarea id="note-${report.id}" placeholder="Any notes? (Optional)" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;"></textarea>
                 <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;" onclick="submitCleanup('${report.id}')" id="btn-submit-${report.id}">Submit Proof</button>
