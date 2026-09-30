@@ -121,13 +121,20 @@
         return;
       }
 
-      data.forEach(report => {
+      for (const report of data) {
         const date = new Date(report.created_at).toLocaleString();
         
         let workerOptions = '<option value="">Select a worker...</option>';
         workers.forEach(w => {
           workerOptions += `<option value="${w.id}">${w.full_name}</option>`;
         });
+
+        let beforeImgUrl = report.before_photo_url;
+        if (beforeImgUrl) {
+          const path = beforeImgUrl.split('/').pop();
+          const { data: bData } = await supabaseClient.storage.from('reports-before').createSignedUrl(path, 3600);
+          if (bData) beforeImgUrl = bData.signedUrl;
+        }
 
         const card = document.createElement('div');
         card.className = 'report-card';
@@ -137,7 +144,7 @@
             <span class="badge badge-submitted">${report.status}</span>
           </div>
           <div class="report-content">
-            <img src="${report.before_photo_url}" class="report-image" alt="Waste Issue">
+            <img src="${beforeImgUrl}" class="report-image" alt="Waste Issue">
             <div class="report-details">
               <p><strong>Reported By:</strong> ${report.profiles.full_name} (${report.profiles.phone || 'N/A'})</p>
               <p><strong>Date:</strong> ${date}</p>
@@ -158,7 +165,7 @@
           </div>
         `;
         container.appendChild(card);
-      });
+      }
     }
 
     window.verifyAndAssign = async (reportId) => {
@@ -183,7 +190,7 @@
           report_id: reportId,
           status: 'Assigned',
           changed_by: currentUser.id,
-          note: \`Verified and assigned to worker.\`
+          note: `Verified and assigned to worker.`
         }]);
 
         showToast('Report assigned successfully!', 'success');
@@ -212,7 +219,7 @@
           report_id: reportId,
           status: 'Rejected',
           changed_by: currentUser.id,
-          note: \`Rejected: \${reason}\`
+          note: `Rejected: ${reason}`
         }]);
 
         showToast('Report rejected.', 'info');

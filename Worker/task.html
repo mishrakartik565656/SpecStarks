@@ -122,9 +122,16 @@
         return;
       }
 
-      data.forEach(report => {
+      for (const report of data) {
         let statusBadgeClass = report.status === 'Assigned' ? 'badge-assigned' : 'badge-inprogress';
         
+        let beforeImgUrl = report.before_photo_url;
+        if (beforeImgUrl) {
+          const path = beforeImgUrl.split('/').pop();
+          const { data: bData } = await supabaseClient.storage.from('reports-before').createSignedUrl(path, 3600);
+          if (bData) beforeImgUrl = bData.signedUrl;
+        }
+
         const card = document.createElement('div');
         card.className = 'task-card';
         card.innerHTML = `
@@ -133,7 +140,7 @@
             <span class="badge ${statusBadgeClass}">${report.status}</span>
           </div>
           <div class="task-body">
-            <img src="${report.before_photo_url}" class="task-image" alt="Before">
+            <img src="${beforeImgUrl}" class="task-image" alt="Before">
             <div class="task-info">
               <p><strong>Location:</strong> ${report.address}</p>
               <p><strong>Map:</strong> <a href="https://maps.google.com/?q=${report.latitude},${report.longitude}" target="_blank" style="color: var(--secondary);">Open in Google Maps</a></p>
@@ -158,7 +165,7 @@
           </div>
         `;
         container.appendChild(card);
-      });
+      }
     }
 
     window.startTask = async (reportId) => {

@@ -147,7 +147,7 @@
       } else {
         reports.forEach(r => {
           if (r.latitude && r.longitude) {
-            L.marker([r.latitude, r.longitude]).addTo(map).bindPopup(\`<b>\${r.issue_type}</b><br>\${r.status}\`);
+            L.marker([r.latitude, r.longitude]).addTo(map).bindPopup(`<b>${r.issue_type}</b><br>${r.status}`);
           }
         });
       }

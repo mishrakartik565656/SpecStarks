@@ -110,7 +110,7 @@
       // Realtime updates
       supabaseClient
         .channel('public:reports')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reports', filter: \`citizen_id=eq.\${currentUser.id}\` }, payload => {
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reports', filter: `citizen_id=eq.${currentUser.id}` }, payload => {
           showToast('A complaint status was updated!', 'info');
           fetchComplaints();
         })
@@ -139,7 +139,7 @@
 
       const statusFlow = ['Submitted', 'Assigned', 'In Progress', 'Cleanup Submitted', 'Resolved'];
 
-      data.forEach(report => {
+      for (const report of data) {
         let currentStatusIndex = statusFlow.indexOf(report.status);
         if (report.status === 'Verified') currentStatusIndex = 0;
         if (report.status === 'Rejected') currentStatusIndex = -1;
@@ -148,7 +148,7 @@
         let timelineHtml = '<div class="timeline">';
         
         if (report.status === 'Rejected') {
-          timelineHtml = \`<p style="color: #EF4444; font-weight: bold;">Rejected: \${report.rejection_reason}</p>\`;
+          timelineHtml = `<p style="color: #EF4444; font-weight: bold;">Rejected: ${report.rejection_reason}</p>`;
         } else {
           statusFlow.forEach((step, index) => {
             let stepClass = '';
@@ -161,29 +161,44 @@
               stepClass = 'step-active';
             }
 
-            timelineHtml += \`
-              <div class="timeline-step \${stepClass}">
-                <div class="step-circle">\${content}</div>
-                <div class="step-label">\${step}</div>
+            timelineHtml += `
+              <div class="timeline-step ${stepClass}">
+                <div class="step-circle">${content}</div>
+                <div class="step-label">${step}</div>
               </div>
-            \`;
+            `;
           });
           timelineHtml += '</div>';
         }
 
+        let beforeImgUrl = report.before_photo_url;
+        let afterImgUrl = report.after_photo_url;
+
+        if (beforeImgUrl) {
+          const path = beforeImgUrl.split('/').pop();
+          const { data: bData } = await supabaseClient.storage.from('reports-before').createSignedUrl(path, 3600);
+          if (bData) beforeImgUrl = bData.signedUrl;
+        }
+
+        if (afterImgUrl) {
+          const path = afterImgUrl.split('/').pop();
+          const { data: aData } = await supabaseClient.storage.from('reports-after').createSignedUrl(path, 3600);
+          if (aData) afterImgUrl = aData.signedUrl;
+        }
+
         const card = document.createElement('div');
         card.className = 'complaint-card';
-        card.innerHTML = \`
-          <h3>\${report.issue_type}</h3>
-          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Reported on: \${new Date(report.created_at).toLocaleDateString()}</p>
+        card.innerHTML = `
+          <h3>${report.issue_type}</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Reported on: ${new Date(report.created_at).toLocaleDateString()}</p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <img src="\${report.before_photo_url}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="Before">
-            \${report.after_photo_url ? \`<img src="\${report.after_photo_url}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="After">\` : ''}
+            <img src="${beforeImgUrl}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="Before">
+            ${afterImgUrl ? `<img src="${afterImgUrl}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="After">` : ''}
           </div>
-          \${timelineHtml}
-        \`;
+          ${timelineHtml}
+        `;
         container.appendChild(card);
-      });
+      }
     }
   </script>
 </body>

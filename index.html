@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="./css/global.css">
   <link rel="stylesheet" href="./css/landing.css">
 </head>
+
 <body>
 
   <!-- Navbar -->
@@ -31,40 +33,37 @@
   <section id="home" class="hero">
     <div class="container">
       <h1>Welcome to <span>CleanSetu</span></h1>
-      <p>A smart, dynamic platform connecting citizens, workers, and administrators to create cleaner, greener cities together.</p>
-      
+      <p>A smart, dynamic platform connecting citizens, workers, and administrators to create cleaner, greener cities
+        together.</p>
+
       <div class="portal-selector">
-        <div class="portal-card" onclick="window.location.href='/Citizen/index.html'">
+        <div class="portal-card" onclick="window.location.href='/login.html'">
           <div class="portal-icon">👤</div>
           <div class="portal-title">Citizen Portal</div>
           <div class="portal-desc">Report waste, request pickups, and earn rewards for a clean city.</div>
         </div>
-        
-        <div class="portal-card" onclick="window.location.href='/Worker/index.html'">
+
+        <div class="portal-card" onclick="window.location.href='/login.html'">
           <div class="portal-icon">👷</div>
           <div class="portal-title">Worker Portal</div>
           <div class="portal-desc">View assigned tasks, update status, and manage cleanups.</div>
         </div>
-        
-        <div class="portal-card" onclick="window.location.href='/Admin/index.html'">
-          <div class="portal-icon">🛡️</div>
-          <div class="portal-title">Admin Portal</div>
-          <div class="portal-desc">Verify reports, assign workers, and monitor analytics.</div>
-        </div>
+
+        <!-- Placeholder for illustration -->
+        <div style="font-size: 5rem; margin-top: 2rem;">🏙️ 🚛 🌳</div>
       </div>
-      
-      <!-- Placeholder for illustration -->
-      <div style="font-size: 5rem; margin-top: 2rem;">🏙️ 🚛 🌳</div>
-    </div>
   </section>
 
   <!-- Who We Are -->
   <section id="about" class="section">
     <div class="container">
       <h2 class="section-title">Who We Are</h2>
-      <p class="section-subtitle">We are a community-driven initiative tackling urban waste management through technology and collaboration.</p>
+      <p class="section-subtitle">We are a community-driven initiative tackling urban waste management through
+        technology and collaboration.</p>
       <div class="card" style="text-align: center; max-width: 800px; margin: 0 auto;">
-        <p>CleanSetu bridges the gap between civic bodies and citizens. We empower individuals to easily report waste-related issues such as overflowing bins or illegal dumping, while providing workers and administrators with the tools to efficiently track and resolve them.</p>
+        <p>CleanSetu bridges the gap between civic bodies and citizens. We empower individuals to easily report
+          waste-related issues such as overflowing bins or illegal dumping, while providing workers and administrators
+          with the tools to efficiently track and resolve them.</p>
       </div>
     </div>
   </section>
@@ -74,12 +73,13 @@
     <div class="container">
       <h2 class="section-title">What We Do</h2>
       <p class="section-subtitle">Solving real-world waste problems with smart, verified workflows.</p>
-      
+
       <div class="grid-3">
         <div class="card">
           <div class="feature-icon">📸</div>
           <h3>Easy Reporting</h3>
-          <p>Citizens can snap a photo of dumped garbage. The app auto-detects the location to create a verified report.</p>
+          <p>Citizens can snap a photo of dumped garbage. The app auto-detects the location to create a verified report.
+          </p>
         </div>
         <div class="card">
           <div class="feature-icon">✅</div>
@@ -144,18 +144,20 @@
     <div class="container">
       <h2 class="section-title">Frequently Asked Questions</h2>
       <div style="max-width: 800px; margin: 0 auto;">
-        
+
         <div class="faq-item" onclick="this.classList.toggle('active')">
           <div class="faq-question">How do I report a waste issue? <span>+</span></div>
           <div class="faq-answer">
-            <p>Simply log in to the Citizen Portal, click "Report Waste", upload a photo, and the app will automatically capture your location. Submit the report and track its progress!</p>
+            <p>Simply log in to the Citizen Portal, click "Report Waste", upload a photo, and the app will automatically
+              capture your location. Submit the report and track its progress!</p>
           </div>
         </div>
-        
+
         <div class="faq-item" onclick="this.classList.toggle('active')">
           <div class="faq-question">How do I earn points? <span>+</span></div>
           <div class="faq-answer">
-            <p>Citizens earn points when their reported issues are successfully cleaned and verified. Workers earn points for completing assigned cleanup tasks.</p>
+            <p>Citizens earn points when their reported issues are successfully cleaned and verified. Workers earn
+              points for completing assigned cleanup tasks.</p>
           </div>
         </div>
 
@@ -187,4 +189,5 @@
 
   <script src="./js/utils.js"></script>
 </body>
+
 </html>

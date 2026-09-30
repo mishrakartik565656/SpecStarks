@@ -22,6 +22,21 @@
     <h1 class="section-title">Welcome, <span id="user-name">Worker</span></h1>
     <p class="section-subtitle">You have <strong id="user-points" style="color: var(--accent);">0</strong> points</p>
 
+    <div class="grid-3" style="margin-bottom: 2rem;">
+      <div class="card text-center" style="padding: 1rem;">
+        <div style="font-size: 2rem; color: var(--primary);" id="stat-assigned">0</div>
+        <div style="font-size: 0.875rem; color: var(--text-muted);">Assigned Tasks</div>
+      </div>
+      <div class="card text-center" style="padding: 1rem;">
+        <div style="font-size: 2rem; color: #F59E0B;" id="stat-progress">0</div>
+        <div style="font-size: 0.875rem; color: var(--text-muted);">In Progress</div>
+      </div>
+      <div class="card text-center" style="padding: 1rem;">
+        <div style="font-size: 2rem; color: #10B981;" id="stat-completed">0</div>
+        <div style="font-size: 0.875rem; color: var(--text-muted);">Completed</div>
+      </div>
+    </div>
+
     <div class="grid-3">
       <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='task.html'">
         <div style="font-size: 3rem; margin-bottom: 1rem;">🧹</div>
@@ -34,6 +49,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/utils.js"></script>
   <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
     import { checkSession } from '../js/auth.js';
     
     document.addEventListener('DOMContentLoaded', async () => {
@@ -41,6 +57,17 @@
       if (auth) {
         document.getElementById('user-name').textContent = auth.profile.full_name;
         document.getElementById('user-points').textContent = auth.profile.points;
+        
+        const { data: tasks } = await supabaseClient
+          .from('reports')
+          .select('status')
+          .eq('assigned_worker_id', auth.session.user.id);
+          
+        if (tasks) {
+          document.getElementById('stat-assigned').textContent = tasks.filter(t => t.status === 'Assigned').length;
+          document.getElementById('stat-progress').textContent = tasks.filter(t => t.status === 'In Progress' || t.status === 'Reassigned/In Progress').length;
+          document.getElementById('stat-completed').textContent = tasks.filter(t => t.status === 'Resolved' || t.status === 'Cleanup Submitted').length;
+        }
       }
     });
   </script>

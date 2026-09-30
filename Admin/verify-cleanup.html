@@ -100,7 +100,22 @@
         return;
       }
 
-      data.forEach(report => {
+      for (const report of data) {
+        let beforeImgUrl = report.before_photo_url;
+        let afterImgUrl = report.after_photo_url;
+
+        if (beforeImgUrl) {
+          const path = beforeImgUrl.split('/').pop();
+          const { data: bData } = await supabaseClient.storage.from('reports-before').createSignedUrl(path, 3600);
+          if (bData) beforeImgUrl = bData.signedUrl;
+        }
+
+        if (afterImgUrl) {
+          const path = afterImgUrl.split('/').pop();
+          const { data: aData } = await supabaseClient.storage.from('reports-after').createSignedUrl(path, 3600);
+          if (aData) afterImgUrl = aData.signedUrl;
+        }
+
         const card = document.createElement('div');
         card.className = 'cleanup-card';
         card.innerHTML = `
@@ -111,11 +126,11 @@
           <div class="photos-compare">
             <div class="photo-box">
               <strong>Before</strong>
-              <img src="${report.before_photo_url}" alt="Before">
+              <img src="${beforeImgUrl}" alt="Before">
             </div>
             <div class="photo-box">
               <strong>After</strong>
-              <img src="${report.after_photo_url}" alt="After">
+              <img src="${afterImgUrl}" alt="After">
             </div>
           </div>
           <p><strong>Worker Note:</strong> ${report.cleanup_note || 'None'}</p>
@@ -126,7 +141,7 @@
           </div>
         `;
         container.appendChild(card);
-      });
+      }
     }
 
     window.approveCleanup = async (reportId) => {
@@ -162,7 +177,7 @@
           .from('reports')
           .update({ 
             status: 'Reassigned/In Progress',
-            cleanup_note: \`Admin Feedback: \${reason}\`
+            cleanup_note: `Admin Feedback: ${reason}`
           })
           .eq('id', reportId);
 
@@ -172,7 +187,7 @@
           report_id: reportId,
           status: 'Reassigned/In Progress',
           changed_by: currentUser.id,
-          note: \`Cleanup rejected: \${reason}\`
+          note: `Cleanup rejected: ${reason}`
         }]);
 
         showToast('Sent back to worker.', 'info');

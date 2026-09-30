@@ -137,11 +137,6 @@ ALTER TABLE public.points_ledger ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.awareness_articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
--- Profiles: Users can read their own, admins can read all, workers might need to see some so let's allow read for authenticated.
-CREATE POLICY "Profiles are viewable by authenticated users" ON public.profiles FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
-
 -- Admin check function
 CREATE OR REPLACE FUNCTION is_admin() RETURNS BOOLEAN AS $$
 BEGIN
@@ -156,26 +151,39 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Profiles: Citizens and workers can read own profile. Admins read all. Workers can read assigned citizens.
+CREATE POLICY "Profiles viewable by related users" ON public.profiles FOR SELECT USING (
+  auth.uid() = id OR is_admin() OR 
+  (is_worker() AND EXISTS (SELECT 1 FROM public.reports WHERE assigned_worker_id = auth.uid() AND citizen_id = profiles.id)) OR
+  (EXISTS (SELECT 1 FROM public.reports WHERE citizen_id = auth.uid() AND assigned_worker_id = profiles.id))
+);
+CREATE POLICY "Users insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id AND role IN ('Citizen', 'Worker'));
+CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (role IN ('Citizen', 'Worker'));
+CREATE POLICY "Admins update all profiles" ON public.profiles FOR UPDATE USING (is_admin());
+
 -- Reports policies
--- Citizens can insert their own, read their own
-CREATE POLICY "Citizens can insert reports" ON public.reports FOR INSERT WITH CHECK (auth.uid() = citizen_id);
+CREATE POLICY "Citizens insert reports" ON public.reports FOR INSERT WITH CHECK (auth.uid() = citizen_id);
 CREATE POLICY "Citizens view own reports" ON public.reports FOR SELECT USING (auth.uid() = citizen_id);
--- Workers can view assigned reports and update them
 CREATE POLICY "Workers view assigned reports" ON public.reports FOR SELECT USING (auth.uid() = assigned_worker_id);
-CREATE POLICY "Workers update assigned reports" ON public.reports FOR UPDATE USING (auth.uid() = assigned_worker_id);
--- Admins can do everything
+CREATE POLICY "Workers update assigned reports" ON public.reports FOR UPDATE USING (auth.uid() = assigned_worker_id) WITH CHECK (auth.uid() = assigned_worker_id);
 CREATE POLICY "Admins full access reports" ON public.reports FOR ALL USING (is_admin());
 
--- Similar for Pickup requests
+-- Pickup requests
 CREATE POLICY "Citizens insert pickups" ON public.pickup_requests FOR INSERT WITH CHECK (auth.uid() = citizen_id);
 CREATE POLICY "Citizens view own pickups" ON public.pickup_requests FOR SELECT USING (auth.uid() = citizen_id);
 CREATE POLICY "Workers view assigned pickups" ON public.pickup_requests FOR SELECT USING (auth.uid() = assigned_worker_id);
-CREATE POLICY "Workers update assigned pickups" ON public.pickup_requests FOR UPDATE USING (auth.uid() = assigned_worker_id);
+CREATE POLICY "Workers update assigned pickups" ON public.pickup_requests FOR UPDATE USING (auth.uid() = assigned_worker_id) WITH CHECK (auth.uid() = assigned_worker_id);
 CREATE POLICY "Admins full access pickups" ON public.pickup_requests FOR ALL USING (is_admin());
 
 -- Status history
-CREATE POLICY "Auth users read status history" ON public.status_history FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Auth users insert status history" ON public.status_history FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users view related history" ON public.status_history FOR SELECT USING (
+  is_admin() OR 
+  EXISTS (SELECT 1 FROM public.reports r WHERE r.id = report_id AND (r.citizen_id = auth.uid() OR r.assigned_worker_id = auth.uid()))
+);
+CREATE POLICY "Users insert related history" ON public.status_history FOR INSERT WITH CHECK (
+  is_admin() OR 
+  EXISTS (SELECT 1 FROM public.reports r WHERE r.id = report_id AND (r.citizen_id = auth.uid() OR r.assigned_worker_id = auth.uid()))
+);
 
 -- Points ledger
 CREATE POLICY "Users view own points" ON public.points_ledger FOR SELECT USING (auth.uid() = user_id);
@@ -186,18 +194,17 @@ CREATE POLICY "Public can view articles" ON public.awareness_articles FOR SELECT
 CREATE POLICY "Admins can edit articles" ON public.awareness_articles FOR ALL USING (is_admin());
 
 -- Settings
-CREATE POLICY "Public can view settings" ON public.settings FOR SELECT USING (true);
-CREATE POLICY "Admins can edit settings" ON public.settings FOR ALL USING (is_admin());
+CREATE POLICY "Admins full access settings" ON public.settings FOR ALL USING (is_admin());
 
--- Storage Buckets Setup
+-- Storage Buckets Setup (Private)
 INSERT INTO storage.buckets (id, name, public) 
-VALUES ('reports-before', 'reports-before', true), ('reports-after', 'reports-after', true)
-ON CONFLICT (id) DO NOTHING;
+VALUES ('reports-before', 'reports-before', false), ('reports-after', 'reports-after', false)
+ON CONFLICT (id) DO UPDATE SET public = false;
 
 -- Storage Policies for reports-before
-CREATE POLICY "Public view reports-before" ON storage.objects FOR SELECT USING (bucket_id = 'reports-before');
-CREATE POLICY "Auth insert reports-before" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-before' AND auth.role() = 'authenticated');
+CREATE POLICY "Insert reports-before" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-before' AND auth.role() = 'authenticated' AND SPLIT_PART(name, '-', 1) = auth.uid()::text);
+CREATE POLICY "View reports-before" ON storage.objects FOR SELECT USING (bucket_id = 'reports-before' AND (is_admin() OR SPLIT_PART(name, '-', 1) = auth.uid()::text OR EXISTS (SELECT 1 FROM public.reports WHERE before_photo_url LIKE '%' || name AND assigned_worker_id = auth.uid())));
 
 -- Storage Policies for reports-after
-CREATE POLICY "Public view reports-after" ON storage.objects FOR SELECT USING (bucket_id = 'reports-after');
-CREATE POLICY "Auth insert reports-after" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-after' AND auth.role() = 'authenticated');
+CREATE POLICY "Insert reports-after" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-after' AND auth.role() = 'authenticated' AND SPLIT_PART(name, '-', 1) = auth.uid()::text);
+CREATE POLICY "View reports-after" ON storage.objects FOR SELECT USING (bucket_id = 'reports-after' AND (is_admin() OR SPLIT_PART(name, '-', 1) = auth.uid()::text OR EXISTS (SELECT 1 FROM public.reports WHERE after_photo_url LIKE '%' || name AND citizen_id = auth.uid())));
