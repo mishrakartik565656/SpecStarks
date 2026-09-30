@@ -59,8 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Object.assign(watermark.style, {
     position: 'fixed',
     bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
+    right: '20px',
     background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(5, 150, 105, 0.95))',
     color: '#ffffff',
     padding: '8px 20px',
