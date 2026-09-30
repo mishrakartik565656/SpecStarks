@@ -39,7 +39,7 @@ async function handleSignUp(e) {
 
       if (profileError) throw profileError;
 
-      showToast('Registration successful! Redirecting...', 'success');
+      window.showToast('Registration successful! Redirecting...', 'success');
       
       // Redirect based on role
       setTimeout(() => {
@@ -48,7 +48,7 @@ async function handleSignUp(e) {
       }, 1500);
     }
   } catch (error) {
-    showToast(error.message, 'error');
+    window.showToast(error.message, 'error');
   } finally {
     btn.textContent = 'Sign Up';
     btn.disabled = false;
@@ -83,7 +83,7 @@ async function handleLogin(e) {
 
       if (profileError) throw profileError;
 
-      showToast('Login successful! Redirecting...', 'success');
+      window.showToast('Login successful! Redirecting...', 'success');
       
       setTimeout(() => {
         if (profile.role === 'Citizen') window.location.href = '/Citizen/index.html';
@@ -92,7 +92,7 @@ async function handleLogin(e) {
       }, 1000);
     }
   } catch (error) {
-    showToast(error.message || 'Login failed', 'error');
+    window.showToast(error.message || 'Login failed', 'error');
   } finally {
     btn.textContent = 'Login';
     btn.disabled = false;
@@ -127,11 +127,15 @@ export async function checkSession(allowedRoles = []) {
     return null;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(profile.role)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(profile.role) && profile.role !== 'Admin') {
     // Unauthorized role
-    showToast('Unauthorized access. Redirecting...', 'error');
+    window.showToast('Unauthorized access. Redirecting...', 'error');
     setTimeout(() => {
-      window.location.href = `/${profile.role}/index.html`;
+      if (profile.role === 'Admin') {
+        window.location.href = '/Admin/dashboard.html';
+      } else {
+        window.location.href = `/${profile.role}/index.html`;
+      }
     }, 1500);
     return null;
   }
