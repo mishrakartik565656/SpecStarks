@@ -88,7 +88,7 @@ async function handleLogin(e) {
       setTimeout(() => {
         if (profile.role === 'Citizen') window.location.href = '/Citizen/index.html';
         else if (profile.role === 'Worker') window.location.href = '/Worker/index.html';
-        else if (profile.role === 'Admin') window.location.href = '/Admin/index.html';
+        else if (profile.role === 'Admin') window.location.href = '/Admin/dashboard.html';
       }, 1000);
     }
   } catch (error) {

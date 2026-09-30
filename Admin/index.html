@@ -3,52 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - CleanSetu</title>
+  <title>Admin Login - CleanSetu</title>
   <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/landing.css">
 </head>
 <body>
-  <!-- Navbar -->
   <nav class="navbar">
     <div class="container nav-container">
-      <a href="#" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Admin</span></a>
-      <div class="nav-links">
-        <a href="verify-reports.html">Verify Reports</a>
-        <a href="verify-cleanup.html">Verify Cleanups</a>
-        <a href="analytics.html">Analytics</a>
-        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
-      </div>
+      <a href="../index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Admin Secure Portal</span></a>
     </div>
   </nav>
 
-  <div class="container section">
-    <h1 class="section-title">Admin Dashboard</h1>
-
-    <div class="grid-3">
-      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='verify-reports.html'">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
-        <h3>Verify New Reports</h3>
-        <p>Review submitted waste reports and assign them to workers.</p>
-      </div>
-      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='verify-cleanup.html'">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
-        <h3>Verify Cleanups</h3>
-        <p>Review before and after photos and award points.</p>
-      </div>
-      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='analytics.html'">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-        <h3>Analytics</h3>
-        <p>View heatmaps, charts, and system performance.</p>
+  <section class="section">
+    <div class="container">
+      <div class="card" style="max-width: 400px; margin: 2rem auto;">
+        <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--primary);">Admin Login</h2>
+        <form id="admin-login-form">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="login-email" class="form-control" required placeholder="admin@cleansetu.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+          </div>
+          <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%;">Login to Dashboard</button>
+        </form>
       </div>
     </div>
-  </div>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../js/utils.js"></script>
   <script type="module">
-    import { checkSession } from '../js/auth.js';
+    import { supabaseClient } from '../js/supabaseClient.js';
     
-    document.addEventListener('DOMContentLoaded', async () => {
-      await checkSession(['Admin']);
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.textContent = 'Logging in...';
+      btn.disabled = true;
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (authError) throw authError;
+
+        if (authData.user) {
+          const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('role')
+            .eq('id', authData.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+          
+          if (profile.role !== 'Admin') {
+            await supabaseClient.auth.signOut();
+            throw new Error('Access denied. You are not an Admin.');
+          }
+
+          window.showToast('Login successful! Redirecting...', 'success');
+          
+          setTimeout(() => {
+            window.location.href = '/Admin/dashboard.html';
+          }, 1000);
+        }
+      } catch (error) {
+        window.showToast(error.message || 'Login failed', 'error');
+      } finally {
+        btn.textContent = 'Login to Dashboard';
+        btn.disabled = false;
+      }
     });
   </script>
 </body>

@@ -14,6 +14,7 @@ export default defineConfig({
         workerIndex: resolve(import.meta.dirname, 'Worker/index.html'),
         workerTask: resolve(import.meta.dirname, 'Worker/task.html'),
         adminIndex: resolve(import.meta.dirname, 'Admin/index.html'),
+        adminDashboard: resolve(import.meta.dirname, 'Admin/dashboard.html'),
         adminVerifyReports: resolve(import.meta.dirname, 'Admin/verify-reports.html'),
         adminVerifyCleanup: resolve(import.meta.dirname, 'Admin/verify-cleanup.html'),
         adminAnalytics: resolve(import.meta.dirname, 'Admin/analytics.html'),
