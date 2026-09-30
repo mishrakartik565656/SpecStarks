@@ -197,18 +197,51 @@ footer p {
   opacity: 0.8;
 }
 
+/* Responsive Image Reset */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover; /* prevents aspect ratio distortion in some cases */
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem 0;
+    gap: 1rem;
+  }
   .nav-links {
-    display: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+  }
+  .nav-links a {
+    font-size: 0.9rem;
   }
   .mobile-menu-btn {
-    display: block;
+    display: none;
   }
   .section {
     padding: 3rem 0;
   }
   .section-title {
     font-size: 2rem;
+  }
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    padding: 1.5rem;
   }
 }
