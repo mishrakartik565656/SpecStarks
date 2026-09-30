@@ -202,9 +202,9 @@ VALUES ('reports-before', 'reports-before', false), ('reports-after', 'reports-a
 ON CONFLICT (id) DO UPDATE SET public = false;
 
 -- Storage Policies for reports-before
-CREATE POLICY "Insert reports-before" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-before' AND auth.role() = 'authenticated' AND SPLIT_PART(name, '-', 1) = auth.uid()::text);
-CREATE POLICY "View reports-before" ON storage.objects FOR SELECT USING (bucket_id = 'reports-before' AND (is_admin() OR SPLIT_PART(name, '-', 1) = auth.uid()::text OR EXISTS (SELECT 1 FROM public.reports WHERE before_photo_url LIKE '%' || name AND assigned_worker_id = auth.uid())));
+CREATE POLICY "Insert reports-before" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-before' AND auth.role() = 'authenticated' AND name LIKE auth.uid()::text || '%');
+CREATE POLICY "View reports-before" ON storage.objects FOR SELECT USING (bucket_id = 'reports-before' AND (is_admin() OR name LIKE auth.uid()::text || '%' OR EXISTS (SELECT 1 FROM public.reports WHERE before_photo_url LIKE '%' || name AND assigned_worker_id = auth.uid())));
 
 -- Storage Policies for reports-after
-CREATE POLICY "Insert reports-after" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-after' AND auth.role() = 'authenticated' AND SPLIT_PART(name, '-', 1) = auth.uid()::text);
-CREATE POLICY "View reports-after" ON storage.objects FOR SELECT USING (bucket_id = 'reports-after' AND (is_admin() OR SPLIT_PART(name, '-', 1) = auth.uid()::text OR EXISTS (SELECT 1 FROM public.reports WHERE after_photo_url LIKE '%' || name AND citizen_id = auth.uid())));
+CREATE POLICY "Insert reports-after" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-after' AND auth.role() = 'authenticated' AND name LIKE auth.uid()::text || '%');
+CREATE POLICY "View reports-after" ON storage.objects FOR SELECT USING (bucket_id = 'reports-after' AND (is_admin() OR name LIKE auth.uid()::text || '%' OR EXISTS (SELECT 1 FROM public.reports WHERE after_photo_url LIKE '%' || name AND citizen_id = auth.uid())));
