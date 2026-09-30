@@ -156,7 +156,18 @@
 
               <div id="upload-${report.id}" class="upload-section">
                 <h4>Upload After Photo</h4>
-                <input type="file" accept="image/*" capture="environment" onchange="handlePhotoUpload(event, '${report.id}')" style="margin-bottom: 0.5rem;">
+                
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <button class="btn btn-outline" style="flex: 1; padding: 0.5rem;" onclick="startCamera('${report.id}')">📷 Live Camera</button>
+                  <button class="btn btn-outline" style="flex: 1; padding: 0.5rem;" onclick="document.getElementById('photo_upload_${report.id}').click(); stopCamera('${report.id}')">📁 Browse Device</button>
+                </div>
+                
+                <div id="camera-container-${report.id}" style="display: none; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <video id="camera-video-${report.id}" autoplay playsinline style="width: 100%; max-height: 300px; object-fit: cover; border-radius: var(--radius-md); background: #000;"></video>
+                  <button class="btn btn-primary" style="width: 100%;" onclick="capturePhoto('${report.id}')">📸 Capture Photo</button>
+                </div>
+
+                <input type="file" id="photo_upload_${report.id}" accept="image/*" capture="environment" onchange="handlePhotoUpload(event, '${report.id}')" style="display: none;">
                 <img id="preview-${report.id}" class="photo-preview" alt="Preview">
                 <textarea id="note-${report.id}" placeholder="Any notes? (Optional)" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;"></textarea>
                 <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;" onclick="submitCleanup('${report.id}')" id="btn-submit-${report.id}">Submit Proof</button>
@@ -225,6 +236,58 @@
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    };
+
+    window.activeStream = {};
+
+    window.startCamera = async (reportId) => {
+      try {
+        window.activeStream[reportId] = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const video = document.getElementById(`camera-video-${reportId}`);
+        video.srcObject = window.activeStream[reportId];
+        document.getElementById(`camera-container-${reportId}`).style.display = 'flex';
+        document.getElementById(`preview-${reportId}`).style.display = 'none';
+      } catch (err) {
+        showToast('Camera access denied or unavailable.', 'error');
+      }
+    };
+
+    window.stopCamera = (reportId) => {
+      if (window.activeStream[reportId]) {
+        window.activeStream[reportId].getTracks().forEach(track => track.stop());
+        window.activeStream[reportId] = null;
+      }
+      const container = document.getElementById(`camera-container-${reportId}`);
+      if(container) container.style.display = 'none';
+    };
+
+    window.capturePhoto = (reportId) => {
+      const video = document.getElementById(`camera-video-${reportId}`);
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const MAX_WIDTH = 1000;
+      let width = canvas.width;
+      let height = canvas.height;
+      if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+
+      const compressCanvas = document.createElement('canvas');
+      compressCanvas.width = width;
+      compressCanvas.height = height;
+      const compressCtx = compressCanvas.getContext('2d');
+      compressCtx.drawImage(canvas, 0, 0, width, height);
+
+      compressCanvas.toBlob((blob) => {
+        uploadBlobs[reportId] = blob;
+        const preview = document.getElementById(`preview-${reportId}`);
+        preview.src = URL.createObjectURL(blob);
+        preview.style.display = 'block';
+        stopCamera(reportId);
+        showToast('Photo captured!', 'success');
+      }, 'image/jpeg', 0.8);
     };
 
     window.submitCleanup = async (reportId) => {

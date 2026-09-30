@@ -88,7 +88,15 @@
 
         <div class="form-group">
           <label>Photo Evidence</label>
-          <input type="file" id="photo_upload" class="form-control" accept="image/*" capture="environment" required>
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <button type="button" class="btn btn-outline" id="btn-start-camera" style="flex: 1;">📷 Live Camera</button>
+            <button type="button" class="btn btn-outline" id="btn-upload-file" style="flex: 1;">📁 Browse Device</button>
+          </div>
+          <div id="camera-container" style="display: none; flex-direction: column; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <video id="camera-video" autoplay playsinline style="width: 100%; max-height: 300px; object-fit: cover; border-radius: var(--radius-md); background: #000;"></video>
+            <button type="button" class="btn btn-primary" id="btn-capture-photo">📸 Capture Photo</button>
+          </div>
+          <input type="file" id="photo_upload" class="form-control" accept="image/*" capture="environment" style="display: none;">
           <img id="photo-preview" class="photo-preview" alt="Preview">
         </div>
 
@@ -137,7 +145,13 @@
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // Photo preview and client-side compression setup
+      // Photo options
+      document.getElementById('btn-upload-file').addEventListener('click', () => {
+        stopCamera();
+        document.getElementById('photo_upload').click();
+      });
+      document.getElementById('btn-start-camera').addEventListener('click', startCamera);
+      document.getElementById('btn-capture-photo').addEventListener('click', capturePhoto);
       document.getElementById('photo_upload').addEventListener('change', handlePhotoUpload);
       
       // Locate me button
@@ -237,6 +251,61 @@
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    let stream = null;
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const video = document.getElementById('camera-video');
+        video.srcObject = stream;
+        document.getElementById('camera-container').style.display = 'flex';
+        document.getElementById('photo-preview').style.display = 'none';
+      } catch (err) {
+        showToast('Camera access denied or unavailable.', 'error');
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      document.getElementById('camera-container').style.display = 'none';
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('camera-video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Compress similar to file upload
+      const MAX_WIDTH = 1000;
+      let width = canvas.width;
+      let height = canvas.height;
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+
+      const compressCanvas = document.createElement('canvas');
+      compressCanvas.width = width;
+      compressCanvas.height = height;
+      const compressCtx = compressCanvas.getContext('2d');
+      compressCtx.drawImage(canvas, 0, 0, width, height);
+
+      compressCanvas.toBlob((blob) => {
+        compressedImageBlob = blob;
+        const preview = document.getElementById('photo-preview');
+        preview.src = URL.createObjectURL(blob);
+        preview.style.display = 'block';
+        stopCamera();
+        showToast('Photo captured!', 'success');
+      }, 'image/jpeg', 0.8);
     }
 
     async function handleSubmit(e) {
