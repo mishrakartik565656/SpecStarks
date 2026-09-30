@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Toast notification helper
-function showToast(message, type = 'success') {
+window.showToast = function(message, type = 'success') {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.style.position = 'fixed';
