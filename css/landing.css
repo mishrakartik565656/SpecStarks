@@ -99,6 +99,13 @@
   align-items: center;
   justify-content: center;
   font-size: 3rem;
+  overflow: hidden;
+}
+
+.team-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .team-social {
