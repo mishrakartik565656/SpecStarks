@@ -55,22 +55,30 @@ window.showToast = function(message, type = 'success') {
 // Global Watermark
 document.addEventListener('DOMContentLoaded', () => {
   const watermark = document.createElement('div');
-  watermark.textContent = 'Made by Starks';
+  watermark.innerHTML = '⚡ Crafted by <strong>Starks</strong>';
   Object.assign(watermark.style, {
     position: 'fixed',
-    bottom: '10px',
-    right: '10px',
-    background: 'rgba(0, 0, 0, 0.6)',
-    color: 'white',
-    padding: '5px 10px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: '600',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(5, 150, 105, 0.95))',
+    color: '#ffffff',
+    padding: '8px 20px',
+    borderRadius: '9999px',
+    fontSize: '13px',
+    fontWeight: '400',
     zIndex: '100000',
     pointerEvents: 'none',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.5), 0 8px 10px -6px rgba(16, 185, 129, 0.3)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
     fontFamily: '"Inter", sans-serif',
-    letterSpacing: '0.5px'
+    letterSpacing: '0.5px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    textShadow: '0 1px 2px rgba(0,0,0,0.1)'
   });
   document.body.appendChild(watermark);
 });
