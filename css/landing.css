@@ -1,0 +1,148 @@
+/* Landing Page Specific Styles */
+.hero {
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255,255,255,1) 100%);
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-main);
+}
+
+.hero h1 span {
+  color: var(--primary);
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+}
+
+.portal-selector {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.portal-card {
+  background: var(--bg-white);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 250px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.portal-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-lg);
+}
+
+.portal-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.portal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.portal-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.hero-illustration {
+  max-width: 100%;
+  height: auto;
+  margin-top: 2rem;
+}
+
+/* Features / What We Do */
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Team */
+.team-member {
+  text-align: center;
+}
+
+.team-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-full);
+  background-color: #E5E7EB;
+  margin: 0 auto 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.team-social {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* FAQ Accordion */
+.faq-item {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.faq-question {
+  padding: 1.5rem;
+  background: var(--bg-white);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-answer {
+  padding: 0 1.5rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: var(--bg-light);
+}
+
+.faq-item.active .faq-answer {
+  padding: 1.5rem;
+  max-height: 500px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+}

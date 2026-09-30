@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Dashboard - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Citizen</span></a>
+      <div class="nav-links">
+        <a href="report.html">Report Waste</a>
+        <a href="my-complaints.html">My Complaints</a>
+        <a href="pickup.html">Request Pickup</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h1 class="section-title">Welcome, <span id="user-name">Citizen</span></h1>
+    <p class="section-subtitle">You have <strong id="user-points" style="color: var(--accent);">0</strong> points</p>
+
+    <div class="grid-3">
+      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='report.html'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+        <h3>Report Waste</h3>
+        <p>Take a photo and report dumped garbage.</p>
+      </div>
+      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='my-complaints.html'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+        <h3>Track Complaints</h3>
+        <p>View the status of your reported issues.</p>
+      </div>
+      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='pickup.html'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🚛</div>
+        <h3>Request Pickup</h3>
+        <p>Schedule a waste pickup for bulk or hazardous waste.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { checkSession } from '../js/auth.js';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Citizen']);
+      if (auth) {
+        document.getElementById('user-name').textContent = auth.profile.full_name;
+        document.getElementById('user-points').textContent = auth.profile.points;
+      }
+    });
+  </script>
+</body>
+</html>

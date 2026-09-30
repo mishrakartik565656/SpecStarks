@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Cleanups - Admin - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    .cleanup-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+    .cleanup-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .photos-compare {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .photo-box {
+      flex: 1;
+      min-width: 250px;
+    }
+    .photo-box img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      margin-top: 0.5rem;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Admin</span></a>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="verify-reports.html">Verify Reports</a>
+        <a href="verify-cleanup.html" style="color: var(--primary);">Verify Cleanups</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h2 class="section-title">Verify Cleanup Submissions</h2>
+    <div id="cleanups-container">
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession } from '../js/auth.js';
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Admin']);
+      if (!auth) return;
+      currentUser = auth.session.user;
+      await fetchCleanups();
+    });
+
+    async function fetchCleanups() {
+      const { data, error } = await supabaseClient
+        .from('reports')
+        .select('*, profiles!assigned_worker_id(full_name)')
+        .eq('status', 'Cleanup Submitted')
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('cleanups-container');
+      container.innerHTML = '';
+
+      if (error) {
+        showToast('Error fetching cleanups', 'error');
+        return;
+      }
+
+      if (data.length === 0) {
+        container.innerHTML = '<p class="text-center">No cleanup submissions to verify right now.</p>';
+        return;
+      }
+
+      data.forEach(report => {
+        const card = document.createElement('div');
+        card.className = 'cleanup-card';
+        card.innerHTML = `
+          <div class="cleanup-header">
+            <h3>${report.issue_type}</h3>
+            <span>Worker: <strong>${report.profiles.full_name}</strong></span>
+          </div>
+          <div class="photos-compare">
+            <div class="photo-box">
+              <strong>Before</strong>
+              <img src="${report.before_photo_url}" alt="Before">
+            </div>
+            <div class="photo-box">
+              <strong>After</strong>
+              <img src="${report.after_photo_url}" alt="After">
+            </div>
+          </div>
+          <p><strong>Worker Note:</strong> ${report.cleanup_note || 'None'}</p>
+          <p><strong>Location:</strong> ${report.address}</p>
+          <div class="actions">
+            <button class="btn btn-outline" style="color: #EF4444; border-color: #EF4444;" onclick="rejectCleanup('${report.id}')">Reject (Needs more work)</button>
+            <button class="btn btn-primary" onclick="approveCleanup('${report.id}')">Approve & Award Points</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.approveCleanup = async (reportId) => {
+      try {
+        const { error } = await supabaseClient
+          .from('reports')
+          .update({ status: 'Resolved' })
+          .eq('id', reportId);
+          // Note: The Postgres trigger award_points_on_resolve will handle the points atomicity here.
+
+        if (error) throw error;
+
+        await supabaseClient.from('status_history').insert([{
+          report_id: reportId,
+          status: 'Resolved',
+          changed_by: currentUser.id,
+          note: 'Admin verified cleanup and resolved the issue.'
+        }]);
+
+        showToast('Cleanup Approved! Points awarded.', 'success');
+        fetchCleanups();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    window.rejectCleanup = async (reportId) => {
+      const reason = prompt('Why is it rejected? (Worker will see this)');
+      if (!reason) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('reports')
+          .update({ 
+            status: 'Reassigned/In Progress',
+            cleanup_note: \`Admin Feedback: \${reason}\`
+          })
+          .eq('id', reportId);
+
+        if (error) throw error;
+
+        await supabaseClient.from('status_history').insert([{
+          report_id: reportId,
+          status: 'Reassigned/In Progress',
+          changed_by: currentUser.id,
+          note: \`Cleanup rejected: \${reason}\`
+        }]);
+
+        showToast('Sent back to worker.', 'info');
+        fetchCleanups();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Pickup - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-control {
+      width: 100%; padding: 0.75rem; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Citizen</span></a>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="report.html">Report Waste</a>
+        <a href="my-complaints.html">My Complaints</a>
+        <a href="pickup.html" style="color: var(--primary);">Request Pickup</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <div class="form-container">
+      <h2 style="margin-bottom: 1.5rem;">Request Waste Pickup</h2>
+      
+      <form id="pickup-form">
+        <div class="form-group">
+          <label>Waste Type</label>
+          <select id="waste_type" class="form-control" required>
+            <option value="">Select...</option>
+            <option value="Bulk Solid Waste">Bulk Solid Waste</option>
+            <option value="E-Waste">E-Waste</option>
+            <option value="Hazardous">Hazardous / Medical</option>
+            <option value="Recyclables">Large Recyclables (Cardboard, etc.)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Approximate Quantity</label>
+          <input type="text" id="quantity" class="form-control" placeholder="e.g. 2 large bags, 1 old TV" required>
+        </div>
+
+        <div class="form-group">
+          <label>Full Address</label>
+          <textarea id="address" class="form-control" rows="2" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Preferred Date</label>
+          <input type="date" id="pref_date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label>Preferred Time Slot</label>
+          <select id="time_slot" class="form-control" required>
+            <option value="09:00 AM - 12:00 PM">09:00 AM - 12:00 PM</option>
+            <option value="12:00 PM - 03:00 PM">12:00 PM - 03:00 PM</option>
+            <option value="03:00 PM - 06:00 PM">03:00 PM - 06:00 PM</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%;">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession } from '../js/auth.js';
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Citizen']);
+      if (!auth) return;
+      currentUser = auth.session.user;
+      
+      // Set min date to today
+      document.getElementById('pref_date').min = new Date().toISOString().split("T")[0];
+      
+      document.getElementById('pickup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        btn.textContent = 'Submitting...';
+        btn.disabled = true;
+
+        try {
+          const { error } = await supabaseClient.from('pickup_requests').insert([{
+            citizen_id: currentUser.id,
+            waste_type: document.getElementById('waste_type').value,
+            quantity: document.getElementById('quantity').value,
+            address: document.getElementById('address').value,
+            preferred_date: document.getElementById('pref_date').value,
+            time_slot: document.getElementById('time_slot').value,
+            status: 'Pending'
+          }]);
+
+          if (error) throw error;
+          
+          showToast('Pickup request submitted!', 'success');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1500);
+        } catch(err) {
+          showToast(err.message, 'error');
+          btn.textContent = 'Submit Request';
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

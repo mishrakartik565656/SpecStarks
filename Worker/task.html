@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tasks - Worker - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    .task-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .task-body {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .task-image {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+    }
+    .task-info {
+      flex: 1;
+      min-width: 250px;
+    }
+    .badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #E5E7EB;
+    }
+    .badge-assigned { background: #DBEAFE; color: #1E40AF; }
+    .badge-inprogress { background: #FEF3C7; color: #92400E; }
+    
+    .upload-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-light);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    .upload-section.active {
+      display: block;
+    }
+    .photo-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Worker</span></a>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="task.html" style="color: var(--primary);">My Tasks</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h2 class="section-title">My Assigned Tasks</h2>
+    <div id="tasks-container">
+      <p>Loading tasks...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession } from '../js/auth.js';
+
+    let currentUser = null;
+    let uploadBlobs = {}; // Keep track of uploaded blobs by report id
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Worker']);
+      if (!auth) return;
+      currentUser = auth.session.user;
+
+      await fetchTasks();
+    });
+
+    async function fetchTasks() {
+      const { data, error } = await supabaseClient
+        .from('reports')
+        .select('*')
+        .eq('assigned_worker_id', currentUser.id)
+        .in('status', ['Assigned', 'In Progress', 'Reassigned/In Progress'])
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('tasks-container');
+      container.innerHTML = '';
+
+      if (error) {
+        showToast('Error fetching tasks', 'error');
+        return;
+      }
+
+      if (data.length === 0) {
+        container.innerHTML = '<p class="text-center">No assigned tasks right now. Good job!</p>';
+        return;
+      }
+
+      data.forEach(report => {
+        let statusBadgeClass = report.status === 'Assigned' ? 'badge-assigned' : 'badge-inprogress';
+        
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.innerHTML = `
+          <div class="task-header">
+            <h3>${report.issue_type}</h3>
+            <span class="badge ${statusBadgeClass}">${report.status}</span>
+          </div>
+          <div class="task-body">
+            <img src="${report.before_photo_url}" class="task-image" alt="Before">
+            <div class="task-info">
+              <p><strong>Location:</strong> ${report.address}</p>
+              <p><strong>Map:</strong> <a href="https://maps.google.com/?q=${report.latitude},${report.longitude}" target="_blank" style="color: var(--secondary);">Open in Google Maps</a></p>
+              ${report.cleanup_note ? `<p style="color: #EF4444;"><strong>Admin Note:</strong> ${report.cleanup_note}</p>` : ''}
+              
+              <div style="margin-top: 1rem;">
+                ${report.status === 'Assigned' || report.status === 'Reassigned/In Progress' ? `
+                  <button class="btn btn-primary" onclick="startTask('${report.id}')">Start Cleanup</button>
+                ` : `
+                  <button class="btn btn-outline" onclick="document.getElementById('upload-${report.id}').classList.toggle('active')">Submit Cleanup Proof</button>
+                `}
+              </div>
+
+              <div id="upload-${report.id}" class="upload-section">
+                <h4>Upload After Photo</h4>
+                <input type="file" accept="image/*" onchange="handlePhotoUpload(event, '${report.id}')" style="margin-bottom: 0.5rem;">
+                <img id="preview-${report.id}" class="photo-preview" alt="Preview">
+                <textarea id="note-${report.id}" placeholder="Any notes? (Optional)" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;"></textarea>
+                <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;" onclick="submitCleanup('${report.id}')" id="btn-submit-${report.id}">Submit Proof</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.startTask = async (reportId) => {
+      try {
+        const { error } = await supabaseClient
+          .from('reports')
+          .update({ status: 'In Progress' })
+          .eq('id', reportId);
+
+        if (error) throw error;
+
+        await supabaseClient.from('status_history').insert([{
+          report_id: reportId,
+          status: 'In Progress',
+          changed_by: currentUser.id,
+          note: 'Worker started cleanup.'
+        }]);
+
+        showToast('Task marked as In Progress', 'success');
+        fetchTasks();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    window.handlePhotoUpload = (event, reportId) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1000;
+          const MAX_HEIGHT = 1000;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+          }
+
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob) => {
+            uploadBlobs[reportId] = blob;
+            const preview = document.getElementById(`preview-${reportId}`);
+            preview.src = URL.createObjectURL(blob);
+            preview.style.display = 'block';
+          }, 'image/jpeg', 0.8);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.submitCleanup = async (reportId) => {
+      if (!uploadBlobs[reportId]) {
+        showToast('Please upload an after photo.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById(`btn-submit-${reportId}`);
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      try {
+        const fileName = `${currentUser.id}-${Date.now()}.jpg`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from('reports-after')
+          .upload(fileName, uploadBlobs[reportId], { contentType: 'image/jpeg' });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabaseClient.storage
+          .from('reports-after')
+          .getPublicUrl(fileName);
+        
+        const note = document.getElementById(`note-${reportId}`).value;
+
+        const { error: updateError } = await supabaseClient
+          .from('reports')
+          .update({ 
+            status: 'Cleanup Submitted',
+            after_photo_url: publicUrl,
+            cleanup_note: note
+          })
+          .eq('id', reportId);
+
+        if (updateError) throw updateError;
+
+        await supabaseClient.from('status_history').insert([{
+          report_id: reportId,
+          status: 'Cleanup Submitted',
+          changed_by: currentUser.id,
+          note: 'Worker submitted cleanup proof.'
+        }]);
+
+        showToast('Cleanup submitted for verification!', 'success');
+        fetchTasks();
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.textContent = 'Submit Proof';
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

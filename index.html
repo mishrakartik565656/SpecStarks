@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanSetu - Smart Waste Management</title>
+  <link rel="stylesheet" href="./css/global.css">
+  <link rel="stylesheet" href="./css/landing.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        ♻️ CleanSetu
+      </a>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#features">What We Do</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact Us</a>
+        <a href="/login.html" class="btn btn-primary">Login / Sign Up</a>
+      </div>
+      <button class="mobile-menu-btn">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="container">
+      <h1>Welcome to <span>CleanSetu</span></h1>
+      <p>A smart, dynamic platform connecting citizens, workers, and administrators to create cleaner, greener cities together.</p>
+      
+      <div class="portal-selector">
+        <div class="portal-card" onclick="window.location.href='/Citizen/index.html'">
+          <div class="portal-icon">👤</div>
+          <div class="portal-title">Citizen Portal</div>
+          <div class="portal-desc">Report waste, request pickups, and earn rewards for a clean city.</div>
+        </div>
+        
+        <div class="portal-card" onclick="window.location.href='/Worker/index.html'">
+          <div class="portal-icon">👷</div>
+          <div class="portal-title">Worker Portal</div>
+          <div class="portal-desc">View assigned tasks, update status, and manage cleanups.</div>
+        </div>
+        
+        <div class="portal-card" onclick="window.location.href='/Admin/index.html'">
+          <div class="portal-icon">🛡️</div>
+          <div class="portal-title">Admin Portal</div>
+          <div class="portal-desc">Verify reports, assign workers, and monitor analytics.</div>
+        </div>
+      </div>
+      
+      <!-- Placeholder for illustration -->
+      <div style="font-size: 5rem; margin-top: 2rem;">🏙️ 🚛 🌳</div>
+    </div>
+  </section>
+
+  <!-- Who We Are -->
+  <section id="about" class="section">
+    <div class="container">
+      <h2 class="section-title">Who We Are</h2>
+      <p class="section-subtitle">We are a community-driven initiative tackling urban waste management through technology and collaboration.</p>
+      <div class="card" style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <p>CleanSetu bridges the gap between civic bodies and citizens. We empower individuals to easily report waste-related issues such as overflowing bins or illegal dumping, while providing workers and administrators with the tools to efficiently track and resolve them.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Do -->
+  <section id="features" class="section" style="background-color: var(--bg-white);">
+    <div class="container">
+      <h2 class="section-title">What We Do</h2>
+      <p class="section-subtitle">Solving real-world waste problems with smart, verified workflows.</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="feature-icon">📸</div>
+          <h3>Easy Reporting</h3>
+          <p>Citizens can snap a photo of dumped garbage. The app auto-detects the location to create a verified report.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon">✅</div>
+          <h3>Smart Verification</h3>
+          <p>Admins verify issues and assign them to workers. Before and after photos ensure proper cleanup.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon">🏆</div>
+          <h3>Reward System</h3>
+          <p>Both citizens and workers earn points for successful cleanups, encouraging active participation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Waste Awareness Preview -->
+  <section class="section">
+    <div class="container text-center">
+      <h2 class="section-title">Waste Awareness</h2>
+      <p class="section-subtitle">Learn how to segregate waste properly and keep our environment safe.</p>
+      <div class="card" style="display: inline-block; text-align: left; max-width: 600px; margin: 0 auto;">
+        <ul style="list-style: none; padding-left: 0; margin-bottom: 1.5rem;">
+          <li style="margin-bottom: 1rem;">🟢 <strong>Wet Waste:</strong> Kitchen waste, food scraps</li>
+          <li style="margin-bottom: 1rem;">🔵 <strong>Dry Waste:</strong> Paper, plastic, glass</li>
+          <li style="margin-bottom: 1rem;">🔴 <strong>Hazardous:</strong> Batteries, chemicals</li>
+        </ul>
+        <a href="/Awareness/index.html" class="btn btn-outline">Learn More & Take Quiz</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Preview -->
+  <section id="team" class="section" style="background-color: var(--bg-white);">
+    <div class="container">
+      <h2 class="section-title">Meet Our Team</h2>
+      <p class="section-subtitle">The passionate individuals behind CleanSetu.</p>
+      <div class="grid-3">
+        <div class="card team-member">
+          <div class="team-avatar">👨‍💻</div>
+          <h3>Alex Johnson</h3>
+          <p style="color: var(--primary); font-weight: 500; margin-bottom: 0.5rem;">Founder & CEO</p>
+          <p class="portal-desc">Passionate about using tech for civic good.</p>
+        </div>
+        <div class="card team-member">
+          <div class="team-avatar">👩‍🔬</div>
+          <h3>Sarah Lee</h3>
+          <p style="color: var(--primary); font-weight: 500; margin-bottom: 0.5rem;">Environmental Lead</p>
+          <p class="portal-desc">Ensuring our processes follow eco-friendly standards.</p>
+        </div>
+        <div class="card team-member">
+          <div class="team-avatar">👨‍🔧</div>
+          <h3>Mike Chen</h3>
+          <p style="color: var(--primary); font-weight: 500; margin-bottom: 0.5rem;">Operations Manager</p>
+          <p class="portal-desc">Coordinating with workers for efficient cleanups.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="section">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div style="max-width: 800px; margin: 0 auto;">
+        
+        <div class="faq-item" onclick="this.classList.toggle('active')">
+          <div class="faq-question">How do I report a waste issue? <span>+</span></div>
+          <div class="faq-answer">
+            <p>Simply log in to the Citizen Portal, click "Report Waste", upload a photo, and the app will automatically capture your location. Submit the report and track its progress!</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="this.classList.toggle('active')">
+          <div class="faq-question">How do I earn points? <span>+</span></div>
+          <div class="faq-answer">
+            <p>Citizens earn points when their reported issues are successfully cleaned and verified. Workers earn points for completing assigned cleanup tasks.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Us -->
+  <section id="contact" class="section" style="background-color: var(--bg-white);">
+    <div class="container text-center">
+      <h2 class="section-title">Contact Us</h2>
+      <p class="section-subtitle">Have questions? Reach out to us.</p>
+      <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <p style="margin-bottom: 0.5rem;">📧 Email: support@cleansetu.org</p>
+        <p style="margin-bottom: 0.5rem;">📞 Phone: 1800-CLEAN-CITY</p>
+        <p>📍 Address: 123 Green Avenue, Eco City</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <h3>♻️ CleanSetu</h3>
+      <p style="margin-top: 1rem;">Connecting Citizens, Creating Clean Cities.</p>
+      <p style="margin-top: 2rem; font-size: 0.875rem;">&copy; 2026 CleanSetu. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="./js/utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Complaints - Citizen - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    .complaint-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      position: relative;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+    .timeline-step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      flex: 1;
+      min-width: 80px;
+    }
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg-white);
+      border: 2px solid var(--border-color);
+      margin: 0 auto 0.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .step-active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+    .step-completed .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .step-active .step-label {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Citizen</span></a>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="report.html">Report Waste</a>
+        <a href="my-complaints.html" style="color: var(--primary);">My Complaints</a>
+        <a href="pickup.html">Request Pickup</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h2 class="section-title">My Complaints</h2>
+    <div id="complaints-container">
+      <p>Loading complaints...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession } from '../js/auth.js';
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Citizen']);
+      if (!auth) return;
+      currentUser = auth.session.user;
+
+      await fetchComplaints();
+      
+      // Realtime updates
+      supabaseClient
+        .channel('public:reports')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reports', filter: \`citizen_id=eq.\${currentUser.id}\` }, payload => {
+          showToast('A complaint status was updated!', 'info');
+          fetchComplaints();
+        })
+        .subscribe();
+    });
+
+    async function fetchComplaints() {
+      const { data, error } = await supabaseClient
+        .from('reports')
+        .select('*')
+        .eq('citizen_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('complaints-container');
+      container.innerHTML = '';
+
+      if (error) {
+        showToast('Error fetching complaints', 'error');
+        return;
+      }
+
+      if (data.length === 0) {
+        container.innerHTML = '<p class="text-center">You have not reported any issues yet.</p>';
+        return;
+      }
+
+      const statusFlow = ['Submitted', 'Assigned', 'In Progress', 'Cleanup Submitted', 'Resolved'];
+
+      data.forEach(report => {
+        let currentStatusIndex = statusFlow.indexOf(report.status);
+        if (report.status === 'Verified') currentStatusIndex = 0;
+        if (report.status === 'Rejected') currentStatusIndex = -1;
+        if (report.status === 'Reassigned/In Progress') currentStatusIndex = 2;
+
+        let timelineHtml = '<div class="timeline">';
+        
+        if (report.status === 'Rejected') {
+          timelineHtml = \`<p style="color: #EF4444; font-weight: bold;">Rejected: \${report.rejection_reason}</p>\`;
+        } else {
+          statusFlow.forEach((step, index) => {
+            let stepClass = '';
+            let content = index + 1;
+            
+            if (index < currentStatusIndex) {
+              stepClass = 'step-completed';
+              content = '✓';
+            } else if (index === currentStatusIndex) {
+              stepClass = 'step-active';
+            }
+
+            timelineHtml += \`
+              <div class="timeline-step \${stepClass}">
+                <div class="step-circle">\${content}</div>
+                <div class="step-label">\${step}</div>
+              </div>
+            \`;
+          });
+          timelineHtml += '</div>';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'complaint-card';
+        card.innerHTML = \`
+          <h3>\${report.issue_type}</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Reported on: \${new Date(report.created_at).toLocaleDateString()}</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <img src="\${report.before_photo_url}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="Before">
+            \${report.after_photo_url ? \`<img src="\${report.after_photo_url}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" alt="After">\` : ''}
+          </div>
+          \${timelineHtml}
+        \`;
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

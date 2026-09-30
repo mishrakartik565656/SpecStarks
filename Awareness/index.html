@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Awareness - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    .awareness-hero {
+      background: var(--primary-light);
+      padding: 4rem 0;
+      text-align: center;
+    }
+    .bin-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .bin-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .bin-wet { border-top: 5px solid #10B981; }
+    .bin-dry { border-top: 5px solid #3B82F6; }
+    .bin-haz { border-top: 5px solid #EF4444; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="../index.html" class="logo">♻️ CleanSetu</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="/login.html" class="btn btn-primary">Login / Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="awareness-hero">
+    <div class="container">
+      <h1>Waste Segregation Guide</h1>
+      <p style="font-size: 1.25rem; color: var(--text-muted); max-width: 600px; margin: 1rem auto 0 auto;">Proper waste segregation is the first step towards a sustainable city. Learn how to sort your waste.</p>
+    </div>
+  </div>
+
+  <div class="container section">
+    <div class="grid-3">
+      <div class="bin-card bin-wet">
+        <div class="bin-icon">🟢</div>
+        <h3 style="color: #10B981; margin-bottom: 0.5rem;">Wet Waste (Biodegradable)</h3>
+        <ul style="text-align: left; padding-left: 1.5rem; color: var(--text-muted);">
+          <li>Vegetable & fruit peels</li>
+          <li>Leftover food</li>
+          <li>Eggshells</li>
+          <li>Tea leaves / coffee grounds</li>
+          <li>Garden waste (leaves, twigs)</li>
+        </ul>
+      </div>
+
+      <div class="bin-card bin-dry">
+        <div class="bin-icon">🔵</div>
+        <h3 style="color: #3B82F6; margin-bottom: 0.5rem;">Dry Waste (Recyclable)</h3>
+        <ul style="text-align: left; padding-left: 1.5rem; color: var(--text-muted);">
+          <li>Paper & Cardboard</li>
+          <li>Plastic bottles & containers</li>
+          <li>Glass bottles</li>
+          <li>Metal cans & foils</li>
+          <li>Rubber & thermocol</li>
+        </ul>
+      </div>
+
+      <div class="bin-card bin-haz">
+        <div class="bin-icon">🔴</div>
+        <h3 style="color: #EF4444; margin-bottom: 0.5rem;">Hazardous / E-Waste</h3>
+        <ul style="text-align: left; padding-left: 1.5rem; color: var(--text-muted);">
+          <li>Used batteries</li>
+          <li>Paints & chemicals</li>
+          <li>Old electronics (phones, wires)</li>
+          <li>Medical waste (syringes)</li>
+          <li>Broken glass & bulbs</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top: 4rem; text-align: center; background: white; padding: 3rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+      <h2>Test Your Knowledge!</h2>
+      <p style="margin-bottom: 1.5rem;">Take our quick quiz to see how well you know waste segregation.</p>
+      <button class="btn btn-primary" onclick="alert('Quiz feature coming soon! Log in to earn points.')">Start Quiz</button>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+</body>
+</html>

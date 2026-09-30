@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Dashboard - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Worker</span></a>
+      <div class="nav-links">
+        <a href="task.html">My Tasks</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h1 class="section-title">Welcome, <span id="user-name">Worker</span></h1>
+    <p class="section-subtitle">You have <strong id="user-points" style="color: var(--accent);">0</strong> points</p>
+
+    <div class="grid-3">
+      <div class="card text-center" style="cursor: pointer;" onclick="window.location.href='task.html'">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🧹</div>
+        <h3>My Assigned Tasks</h3>
+        <p>View locations, update status, and submit proof of cleanup.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { checkSession } from '../js/auth.js';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Worker']);
+      if (auth) {
+        document.getElementById('user-name').textContent = auth.profile.full_name;
+        document.getElementById('user-points').textContent = auth.profile.points;
+      }
+    });
+  </script>
+</body>
+</html>

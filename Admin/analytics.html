@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Admin - CleanSetu</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .stat-card {
+      background: var(--bg-white);
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .chart-container {
+      background: var(--bg-white);
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+      border-radius: var(--radius-md);
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Admin</span></a>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="verify-reports.html">Verify Reports</a>
+        <a href="verify-cleanup.html">Verify Cleanups</a>
+        <a href="analytics.html" style="color: var(--primary);">Analytics</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h2 class="section-title">Platform Analytics</h2>
+
+    <div class="grid-3" style="margin-bottom: 2rem;">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">0</div>
+        <div>Total Reports</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-resolved">0</div>
+        <div>Resolved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-pending">0</div>
+        <div>Pending Verification</div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 2rem; grid-template-columns: 1fr 1fr;">
+      <div class="chart-container">
+        <h3 style="margin-bottom: 1rem; text-align: center;">Issues by Type</h3>
+        <canvas id="typeChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 style="margin-bottom: 1rem; text-align: center;">Issue Hotspots</h3>
+        <div id="map"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Optional Heatmap Layer -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession } from '../js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Admin']);
+      if (!auth) return;
+
+      fetchAnalytics();
+    });
+
+    async function fetchAnalytics() {
+      const { data: reports, error } = await supabaseClient
+        .from('reports')
+        .select('*');
+
+      if (error) {
+        showToast('Failed to load analytics', 'error');
+        return;
+      }
+
+      // Stats
+      document.getElementById('stat-total').textContent = reports.length;
+      document.getElementById('stat-resolved').textContent = reports.filter(r => r.status === 'Resolved').length;
+      document.getElementById('stat-pending').textContent = reports.filter(r => r.status === 'Submitted' || r.status === 'Cleanup Submitted').length;
+
+      // Chart
+      const typeCounts = {};
+      reports.forEach(r => {
+        typeCounts[r.issue_type] = (typeCounts[r.issue_type] || 0) + 1;
+      });
+
+      const ctx = document.getElementById('typeChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(typeCounts),
+          datasets: [{
+            data: Object.values(typeCounts),
+            backgroundColor: [
+              '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'
+            ]
+          }]
+        }
+      });
+
+      // Map
+      const map = L.map('map').setView([28.6139, 77.2090], 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OSM'
+      }).addTo(map);
+
+      // Add heatmap if library loaded, otherwise just markers
+      if (typeof L.heatLayer !== 'undefined') {
+        const heatData = reports.filter(r => r.latitude && r.longitude).map(r => [r.latitude, r.longitude, 1]);
+        if (heatData.length > 0) {
+          L.heatLayer(heatData, {radius: 25, blur: 15}).addTo(map);
+          map.fitBounds(L.latLngBounds(heatData.map(h => [h[0], h[1]])));
+        }
+      } else {
+        reports.forEach(r => {
+          if (r.latitude && r.longitude) {
+            L.marker([r.latitude, r.longitude]).addTo(map).bindPopup(\`<b>\${r.issue_type}</b><br>\${r.status}\`);
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
