@@ -6,32 +6,100 @@
   <title>Admin Login - CleanSetu</title>
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/landing.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .login-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .admin-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .admin-card h2 {
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+    .admin-card p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .form-control {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 0.875rem 1rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .form-control:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.4rem;
+      text-align: left;
+    }
+    .btn-login {
+      background: #111827;
+      color: #ffffff;
+      padding: 0.875rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-login:hover {
+      background: #374151;
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar">
+  <nav class="navbar" style="background: transparent; border-bottom: none;">
     <div class="container nav-container">
-      <a href="../index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: var(--text-muted);">| Admin Secure Portal</span></a>
+      <a href="../index.html" class="logo">♻️ CleanSetu <span style="font-size: 1rem; color: #6b7280;">| Admin</span></a>
     </div>
   </nav>
 
-  <section class="section">
-    <div class="container">
-      <div class="card" style="max-width: 400px; margin: 2rem auto;">
-        <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--primary);">Admin Login</h2>
-        <form id="admin-login-form">
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="login-email" class="form-control" required placeholder="admin@cleansetu.com">
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
-          </div>
-          <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%;">Login to Dashboard</button>
-        </form>
-      </div>
+  <div class="login-wrapper">
+    <div class="admin-card">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛡️</div>
+      <h2>Secure Portal</h2>
+      <p>Enter your credentials to manage the platform.</p>
+      
+      <form id="admin-login-form" style="text-align: left;">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" class="form-control" required placeholder="admin@cleansetu.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+        </div>
+        <button type="submit" id="login-btn" class="btn-login" style="width: 100%; margin-top: 1rem;">Sign In to Dashboard</button>
+      </form>
     </div>
-  </section>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../js/utils.js"></script>
