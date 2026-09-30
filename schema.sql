@@ -188,3 +188,16 @@ CREATE POLICY "Admins can edit articles" ON public.awareness_articles FOR ALL US
 -- Settings
 CREATE POLICY "Public can view settings" ON public.settings FOR SELECT USING (true);
 CREATE POLICY "Admins can edit settings" ON public.settings FOR ALL USING (is_admin());
+
+-- Storage Buckets Setup
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('reports-before', 'reports-before', true), ('reports-after', 'reports-after', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for reports-before
+CREATE POLICY "Public view reports-before" ON storage.objects FOR SELECT USING (bucket_id = 'reports-before');
+CREATE POLICY "Auth insert reports-before" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-before' AND auth.role() = 'authenticated');
+
+-- Storage Policies for reports-after
+CREATE POLICY "Public view reports-after" ON storage.objects FOR SELECT USING (bucket_id = 'reports-after');
+CREATE POLICY "Auth insert reports-after" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'reports-after' AND auth.role() = 'authenticated');
