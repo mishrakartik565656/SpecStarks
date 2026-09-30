@@ -51,3 +51,26 @@ window.showToast = function(message, type = 'success') {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
+// Global Watermark
+document.addEventListener('DOMContentLoaded', () => {
+  const watermark = document.createElement('div');
+  watermark.textContent = 'Made by Starks';
+  Object.assign(watermark.style, {
+    position: 'fixed',
+    bottom: '10px',
+    right: '10px',
+    background: 'rgba(0, 0, 0, 0.6)',
+    color: 'white',
+    padding: '5px 10px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: '600',
+    zIndex: '100000',
+    pointerEvents: 'none',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    fontFamily: '"Inter", sans-serif',
+    letterSpacing: '0.5px'
+  });
+  document.body.appendChild(watermark);
+});
