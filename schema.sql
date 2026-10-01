@@ -122,7 +122,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER report_resolved_trigger
 BEFORE UPDATE ON public.reports
@@ -188,6 +188,7 @@ CREATE POLICY "Users insert related history" ON public.status_history FOR INSERT
 -- Points ledger
 CREATE POLICY "Users view own points" ON public.points_ledger FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Admins view all points" ON public.points_ledger FOR SELECT USING (is_admin());
+CREATE POLICY "Admins insert points" ON public.points_ledger FOR INSERT WITH CHECK (is_admin());
 
 -- Awareness
 CREATE POLICY "Public can view articles" ON public.awareness_articles FOR SELECT USING (true);
