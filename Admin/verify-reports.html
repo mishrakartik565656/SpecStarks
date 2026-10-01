@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verify Reports - Admin - SwachhSaarthi</title>
   <link rel="stylesheet" href="../css/global.css">
+  <!-- Leaflet Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <style>
     .report-card {
       background: var(--bg-white);
@@ -150,6 +154,7 @@
               <p><strong>Reported By:</strong> ${report.profiles.full_name} (${report.profiles.phone || 'N/A'})</p>
               <p><strong>Date:</strong> ${date}</p>
               <p><strong>Location:</strong> ${report.address}</p>
+              <div id="map-${report.id}" style="height: 200px; width: 100%; margin: 10px 0; border-radius: var(--radius-md); z-index: 1;"></div>
               <p><strong>Description:</strong> ${report.description || 'No description provided'}</p>
               
               <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
@@ -166,6 +171,15 @@
           </div>
         `;
         container.appendChild(card);
+
+        // Initialize Map for this report
+        setTimeout(() => {
+          const map = L.map(`map-${report.id}`).setView([report.latitude, report.longitude], 16);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+          L.marker([report.latitude, report.longitude]).addTo(map).bindPopup('Reported Location');
+        }, 100);
       }
     }
 

@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Tasks - Worker - SwachhSaarthi</title>
   <link rel="stylesheet" href="../css/global.css">
+  <!-- Leaflet Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     .task-card {
       background: var(--bg-white);
@@ -143,7 +147,8 @@
             <img src="${beforeImgUrl}" class="task-image" alt="Before">
             <div class="task-info">
               <p><strong>Location:</strong> ${report.address}</p>
-              <p><strong>Map:</strong> <a href="https://maps.google.com/?q=${report.latitude},${report.longitude}" target="_blank" style="color: var(--secondary);">Open in Google Maps</a></p>
+              <div id="map-${report.id}" style="height: 150px; width: 100%; margin: 10px 0; border-radius: var(--radius-md); z-index: 1;"></div>
+              <p style="margin-bottom: 0.5rem;"><a href="https://maps.google.com/?q=${report.latitude},${report.longitude}" target="_blank" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; display: inline-block;">Get Navigation Directions (Google Maps)</a></p>
               ${report.cleanup_note ? `<p style="color: #EF4444;"><strong>Admin Note:</strong> ${report.cleanup_note}</p>` : ''}
               
               <div style="margin-top: 1rem;">
@@ -174,6 +179,15 @@
           </div>
         `;
         container.appendChild(card);
+
+        // Initialize Map for this task
+        setTimeout(() => {
+          const map = L.map(`map-${report.id}`).setView([report.latitude, report.longitude], 16);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+          L.marker([report.latitude, report.longitude]).addTo(map).bindPopup('Clean-up Site');
+        }, 100);
       }
     }
 
