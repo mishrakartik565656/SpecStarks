@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Pickups - Admin - SwachhSaarthi</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <!-- Leaflet Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <style>
+    .pickup-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+    }
+    .pickup-header {
+      padding: 1.5rem;
+      background: var(--bg-light);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge-pending { background: #FBBF24; color: #78350F; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 600; font-size: 0.875rem; }
+    .badge-assigned { background: #3B82F6; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 600; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="dashboard.html" class="logo">♻️ SwachhSaarthi <span style="font-size: 1rem; color: var(--text-muted);">| Admin</span></a>
+      <div class="nav-links">
+        <a href="verify-reports.html">Verify Reports</a>
+        <a href="verify-cleanup.html">Verify Cleanups</a>
+        <a href="manage-pickups.html" style="color: var(--primary); font-weight: 600;">Manage Pickups</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="#" class="logout-btn btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <h1 class="section-title text-center">Manage Pickup Requests</h1>
+    <p class="section-subtitle text-center">Review citizen pickup requests and assign workers.</p>
+
+    <div id="pickups-container" style="max-width: 800px; margin: 0 auto;">
+      <p class="text-center">Loading pickup requests...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../js/utils.js"></script>
+  <script type="module">
+    import { supabaseClient } from '../js/supabaseClient.js';
+    import { checkSession, handleLogout } from '../js/auth.js';
+
+    let currentUser = null;
+    let workers = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkSession(['Admin']);
+      if (!auth) return;
+      currentUser = auth.session.user;
+
+      document.querySelector('.logout-btn').addEventListener('click', handleLogout);
+
+      await fetchWorkers();
+      await fetchPickups();
+    });
+
+    async function fetchWorkers() {
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('role', 'Worker');
+      if (!error) workers = data;
+    }
+
+    async function fetchPickups() {
+      const { data, error } = await supabaseClient
+        .from('pickup_requests')
+        .select('*, profiles!citizen_id(full_name, phone)')
+        .in('status', ['Pending'])
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('pickups-container');
+      container.innerHTML = '';
+
+      if (error) {
+        showToast('Error fetching pickups', 'error');
+        return;
+      }
+
+      if (data.length === 0) {
+        container.innerHTML = '<p class="text-center">No pending pickup requests.</p>';
+        return;
+      }
+
+      for (const pickup of data) {
+        const date = new Date(pickup.created_at).toLocaleString();
+        
+        let workerOptions = '<option value="">Select a worker...</option>';
+        workers.forEach(w => {
+          const areaInfo = w.area ? ` (${w.area})` : '';
+          workerOptions += `<option value="${w.id}">${w.full_name}${areaInfo}</option>`;
+        });
+
+        const card = document.createElement('div');
+        card.className = 'pickup-card';
+        card.innerHTML = `
+          <div class="pickup-header">
+            <h3>Waste Type: ${pickup.waste_type}</h3>
+            <span class="badge badge-pending">${pickup.status}</span>
+          </div>
+          <div style="padding: 1.5rem;">
+            <p><strong>Citizen:</strong> ${pickup.profiles.full_name} (${pickup.profiles.phone || 'N/A'})</p>
+            <p><strong>Quantity:</strong> ${pickup.quantity}</p>
+            <p><strong>Preferred Slot:</strong> ${pickup.preferred_date} (${pickup.time_slot})</p>
+            <p><strong>Location:</strong> ${pickup.address}</p>
+            ${pickup.latitude ? `<div id="map-${pickup.id}" style="height: 200px; width: 100%; margin: 10px 0; border-radius: var(--radius-md); z-index: 1;"></div>` : ''}
+            
+            <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+              <h4>Assign Worker</h4>
+              <select id="worker-${pickup.id}" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+                ${workerOptions}
+              </select>
+              <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn" style="background: #EF4444; color: white;" onclick="rejectPickup('${pickup.id}')">Reject</button>
+                <button class="btn btn-primary" onclick="assignPickup('${pickup.id}')">Assign Pickup</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+
+        // Map init
+        if(pickup.latitude) {
+          setTimeout(() => {
+            const mapId = `map-${pickup.id}`;
+            const mapElement = document.getElementById(mapId);
+            if (mapElement && !mapElement._leaflet_id) {
+              const map = L.map(mapId).setView([pickup.latitude, pickup.longitude], 16);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+              }).addTo(map);
+              L.marker([pickup.latitude, pickup.longitude]).addTo(map).bindPopup('Pickup Location');
+              setTimeout(() => { map.invalidateSize(); }, 300);
+            }
+          }, 200);
+        }
+      }
+    }
+
+    window.assignPickup = async (pickupId) => {
+      const workerId = document.getElementById(`worker-${pickupId}`).value;
+      if (!workerId) {
+        showToast('Please select a worker.', 'error');
+        return;
+      }
+      
+      const { error } = await supabaseClient
+        .from('pickup_requests')
+        .update({ status: 'Approved', assigned_worker_id: workerId })
+        .eq('id', pickupId);
+        
+      if (error) {
+        showToast('Error assigning pickup', 'error');
+      } else {
+        showToast('Worker assigned successfully!', 'success');
+        fetchPickups();
+      }
+    };
+
+    window.rejectPickup = async (pickupId) => {
+      const { error } = await supabaseClient
+        .from('pickup_requests')
+        .update({ status: 'Rejected' })
+        .eq('id', pickupId);
+        
+      if (error) {
+        showToast('Error rejecting pickup', 'error');
+      } else {
+        showToast('Pickup rejected.', 'info');
+        fetchPickups();
+      }
+    };
+  </script>
+</body>
+</html>
