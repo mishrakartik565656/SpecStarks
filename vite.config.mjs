@@ -15,6 +15,7 @@ export default defineConfig({
         citizenComplaints: resolve(__dirname, 'Citizen/my-complaints.html'),
         citizenReport: resolve(__dirname, 'Citizen/report.html'),
         citizenPickup: resolve(__dirname, 'Citizen/pickup.html'),
+        citizenRewards: resolve(__dirname, 'Citizen/rewards.html'),
         workerIndex: resolve(__dirname, 'Worker/index.html'),
         workerTask: resolve(__dirname, 'Worker/task.html'),
         adminIndex: resolve(__dirname, 'Admin/index.html'),
