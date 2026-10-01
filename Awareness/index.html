@@ -86,13 +86,30 @@
       </div>
     </div>
 
-    <div style="margin-top: 4rem; text-align: center; background: white; padding: 3rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-      <h2>Test Your Knowledge!</h2>
-      <p style="margin-bottom: 1.5rem;">Take our quick quiz to see how well you know waste segregation.</p>
-      <button class="btn btn-primary" onclick="alert('Quiz feature coming soon! Log in to earn points.')">Start Quiz</button>
+    <div id="quiz-container" style="margin-top: 4rem; text-align: center; background: white; padding: 3rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+      <div id="quiz-intro">
+        <h2>Test Your Knowledge!</h2>
+        <p style="margin-bottom: 1.5rem;">Take our quick quiz to see how well you know waste segregation. You will be asked 10 random questions.</p>
+        <button class="btn btn-primary" id="start-quiz-btn" style="padding: 1rem 2rem; font-size: 1.1rem;">Start Quiz</button>
+      </div>
+
+      <div id="quiz-active" style="display: none;">
+        <h3 id="quiz-progress" style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1rem; font-weight: 500;">Question 1 of 10</h3>
+        <h2 id="quiz-question" style="margin-bottom: 2.5rem; font-size: 1.5rem; color: var(--text-dark);">Question Text?</h2>
+        <div id="quiz-options" style="display: flex; flex-direction: column; gap: 1rem; max-width: 500px; margin: 0 auto;">
+          <!-- Options will be injected here -->
+        </div>
+      </div>
+
+      <div id="quiz-result" style="display: none;">
+        <h2>Quiz Completed!</h2>
+        <p id="quiz-score-text" style="font-size: 1.25rem; margin: 2rem 0;"></p>
+        <button class="btn btn-primary" id="restart-quiz-btn" style="padding: 1rem 2rem;">Retake Quiz</button>
+      </div>
     </div>
   </div>
 
   <script type="module" src="../js/utils.js"></script>
+  <script type="module" src="../js/quiz.js"></script>
 </body>
 </html>
