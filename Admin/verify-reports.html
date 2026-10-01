@@ -174,12 +174,17 @@
 
         // Initialize Map for this report
         setTimeout(() => {
-          const map = L.map(`map-${report.id}`).setView([report.latitude, report.longitude], 16);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-          }).addTo(map);
-          L.marker([report.latitude, report.longitude]).addTo(map).bindPopup('Reported Location');
-        }, 100);
+          const mapId = `map-${report.id}`;
+          const mapElement = document.getElementById(mapId);
+          if (mapElement && !mapElement._leaflet_id) {
+            const map = L.map(mapId).setView([report.latitude, report.longitude], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            L.marker([report.latitude, report.longitude]).addTo(map).bindPopup('Reported Location');
+            setTimeout(() => { map.invalidateSize(); }, 300);
+          }
+        }, 200);
       }
     }
 
