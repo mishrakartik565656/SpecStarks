@@ -1,19 +1,24 @@
+const opts = ["Wet Waste (गीला कचरा)", "Dry Waste (सूखा कचरा)", "Hazardous Waste (खतरनाक कचरा)"];
+const WET = opts[0];
+const DRY = opts[1];
+const HAZ = opts[2];
+
 const allQuestions = [
-  { q: "Where should you throw a banana peel?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Wet Waste" },
-  { q: "Which bin is used for a broken glass bottle?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Dry Waste" },
-  { q: "Where do used batteries go?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Hazardous Waste" },
-  { q: "Where should plastic wrappers go?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Dry Waste" },
-  { q: "Which waste category do eggshells belong to?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Wet Waste" },
-  { q: "How should you dispose of expired medicines?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Hazardous Waste" },
-  { q: "What type of waste is an old newspaper?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Dry Waste" },
-  { q: "Where should tea leaves be discarded?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Wet Waste" },
-  { q: "Where do empty paint cans go?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Hazardous Waste" },
-  { q: "Which bin is suitable for cardboard boxes?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Dry Waste" },
-  { q: "What kind of waste are used syringes?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Hazardous Waste" },
-  { q: "Where should you put leftover food?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Wet Waste" },
-  { q: "Which category do metal bottle caps fall into?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Dry Waste" },
-  { q: "How should you dispose of an old mobile phone?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Hazardous Waste" },
-  { q: "Where does garden waste (leaves, twigs) go?", options: ["Wet Waste", "Dry Waste", "Hazardous Waste"], answer: "Wet Waste" }
+  { q: "Where should you throw a banana peel?<br><span style='font-size:0.9em; color:var(--text-muted)'>आपको केले का छिलका कहाँ फेंकना चाहिए?</span>", options: opts, answer: WET },
+  { q: "Which bin is used for a broken glass bottle?<br><span style='font-size:0.9em; color:var(--text-muted)'>टूटी हुई कांच की बोतल किस डिब्बे में डालनी चाहिए?</span>", options: opts, answer: DRY },
+  { q: "Where do used batteries go?<br><span style='font-size:0.9em; color:var(--text-muted)'>इस्तेमाल की गई बैटरी कहाँ डालनी चाहिए?</span>", options: opts, answer: HAZ },
+  { q: "Where should plastic wrappers go?<br><span style='font-size:0.9em; color:var(--text-muted)'>प्लास्टिक के रैपर कहाँ डालने चाहिए?</span>", options: opts, answer: DRY },
+  { q: "Which waste category do eggshells belong to?<br><span style='font-size:0.9em; color:var(--text-muted)'>अंडे के छिलके किस श्रेणी में आते हैं?</span>", options: opts, answer: WET },
+  { q: "How should you dispose of expired medicines?<br><span style='font-size:0.9em; color:var(--text-muted)'>एक्सपायर हो चुकी दवाइयों को कहाँ फेंकना चाहिए?</span>", options: opts, answer: HAZ },
+  { q: "What type of waste is an old newspaper?<br><span style='font-size:0.9em; color:var(--text-muted)'>पुराना अखबार किस प्रकार का कचरा है?</span>", options: opts, answer: DRY },
+  { q: "Where should tea leaves be discarded?<br><span style='font-size:0.9em; color:var(--text-muted)'>चाय की पत्ती कहाँ फेंकनी चाहिए?</span>", options: opts, answer: WET },
+  { q: "Where do empty paint cans go?<br><span style='font-size:0.9em; color:var(--text-muted)'>खाली पेंट के डिब्बे कहाँ जाने चाहिए?</span>", options: opts, answer: HAZ },
+  { q: "Which bin is suitable for cardboard boxes?<br><span style='font-size:0.9em; color:var(--text-muted)'>गत्ते के डिब्बों के लिए कौन सा डिब्बा सही है?</span>", options: opts, answer: DRY },
+  { q: "What kind of waste are used syringes?<br><span style='font-size:0.9em; color:var(--text-muted)'>इस्तेमाल की गई सिरिंज किस प्रकार का कचरा हैं?</span>", options: opts, answer: HAZ },
+  { q: "Where should you put leftover food?<br><span style='font-size:0.9em; color:var(--text-muted)'>बचा हुआ खाना कहाँ डालना चाहिए?</span>", options: opts, answer: WET },
+  { q: "Which category do metal bottle caps fall into?<br><span style='font-size:0.9em; color:var(--text-muted)'>धातु के ढक्कन किस श्रेणी में आते हैं?</span>", options: opts, answer: DRY },
+  { q: "How should you dispose of an old mobile phone?<br><span style='font-size:0.9em; color:var(--text-muted)'>पुराना मोबाइल फोन कहाँ फेंकना चाहिए?</span>", options: opts, answer: HAZ },
+  { q: "Where does garden waste (leaves, twigs) go?<br><span style='font-size:0.9em; color:var(--text-muted)'>बगीचे का कचरा कहाँ जाना चाहिए?</span>", options: opts, answer: WET }
 ];
 
 let currentQuestions = [];
@@ -60,22 +65,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const q = currentQuestions[currentIndex];
     progressEl.textContent = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
-    questionEl.textContent = q.q;
+    questionEl.innerHTML = q.q;
     
     optionsEl.innerHTML = '';
     
     // Assign specific colors to waste categories for visual learning
     const getColor = (opt) => {
-      if(opt === "Wet Waste") return "rgba(16, 185, 129, 0.1)"; // Green
-      if(opt === "Dry Waste") return "rgba(59, 130, 246, 0.1)"; // Blue
-      if(opt === "Hazardous Waste") return "rgba(239, 68, 68, 0.1)"; // Red
+      if(opt.includes("Wet Waste")) return "rgba(16, 185, 129, 0.1)"; // Green
+      if(opt.includes("Dry Waste")) return "rgba(59, 130, 246, 0.1)"; // Blue
+      if(opt.includes("Hazardous")) return "rgba(239, 68, 68, 0.1)"; // Red
       return "#F3F4F6";
     };
 
     const getBorder = (opt) => {
-      if(opt === "Wet Waste") return "1px solid #10b981"; 
-      if(opt === "Dry Waste") return "1px solid #3b82f6"; 
-      if(opt === "Hazardous Waste") return "1px solid #ef4444"; 
+      if(opt.includes("Wet Waste")) return "1px solid #10b981"; 
+      if(opt.includes("Dry Waste")) return "1px solid #3b82f6"; 
+      if(opt.includes("Hazardous")) return "1px solid #ef4444"; 
       return "1px solid #E5E7EB";
     };
 
@@ -110,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleAnswer(selected, correct) {
     if (selected === correct) {
       score++;
-      if (window.showToast) window.showToast('Correct! 🎉', 'success');
+      if (window.showToast) window.showToast('Correct! / सही जवाब! 🎉', 'success');
     } else {
-      if (window.showToast) window.showToast(`Oops! Correct answer was ${correct}`, 'error');
+      if (window.showToast) window.showToast(`Oops! Answer: ${correct.split(' ')[0]} / सही जवाब: ${correct.split(' ')[0]}`, 'error');
     }
     currentIndex++;
-    setTimeout(loadQuestion, 800);
+    setTimeout(loadQuestion, 1200);
   }
 
   function showResult() {
