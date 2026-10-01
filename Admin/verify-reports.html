@@ -126,7 +126,8 @@
         
         let workerOptions = '<option value="">Select a worker...</option>';
         workers.forEach(w => {
-          workerOptions += `<option value="${w.id}">${w.full_name}</option>`;
+          const areaInfo = w.area ? ` (${w.area})` : '';
+          workerOptions += `<option value="${w.id}">${w.full_name}${areaInfo}</option>`;
         });
 
         let beforeImgUrl = report.before_photo_url;
