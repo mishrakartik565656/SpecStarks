@@ -1,4 +1,4 @@
--- CleanSetu Supabase Schema
+-- SwachhSaarthi Supabase Schema
 
 -- Profiles table (extends Supabase Auth users)
 CREATE TABLE public.profiles (

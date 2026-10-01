@@ -1,4 +1,4 @@
-// CleanSetu Utility Functions
+// SwachhSaarthi Utility Functions
 
 // Mobile Menu Toggle
 document.addEventListener('DOMContentLoaded', () => {
