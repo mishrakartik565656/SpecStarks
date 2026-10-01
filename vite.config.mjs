@@ -18,6 +18,7 @@ export default defineConfig({
         adminVerifyReports: resolve(import.meta.dirname, 'Admin/verify-reports.html'),
         adminVerifyCleanup: resolve(import.meta.dirname, 'Admin/verify-cleanup.html'),
         adminAnalytics: resolve(import.meta.dirname, 'Admin/analytics.html'),
+        adminManagePickups: resolve(import.meta.dirname, 'Admin/manage-pickups.html'),
         awarenessIndex: resolve(import.meta.dirname, 'Awareness/index.html')
       }
     }
