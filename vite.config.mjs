@@ -22,7 +22,6 @@ export default defineConfig({
         adminVerifyReports: resolve(__dirname, 'Admin/verify-reports.html'),
         adminVerifyCleanup: resolve(__dirname, 'Admin/verify-cleanup.html'),
         adminAnalytics: resolve(__dirname, 'Admin/analytics.html'),
-        adminManagePickups: resolve(__dirname, 'Admin/manage-pickups.html'),
         awarenessIndex: resolve(__dirname, 'Awareness/index.html')
       }
     }
