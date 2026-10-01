@@ -1,25 +1,29 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: resolve(import.meta.dirname, 'index.html'),
-        login: resolve(import.meta.dirname, 'login.html'),
-        citizenIndex: resolve(import.meta.dirname, 'Citizen/index.html'),
-        citizenComplaints: resolve(import.meta.dirname, 'Citizen/my-complaints.html'),
-        citizenReport: resolve(import.meta.dirname, 'Citizen/report.html'),
-        citizenPickup: resolve(import.meta.dirname, 'Citizen/pickup.html'),
-        workerIndex: resolve(import.meta.dirname, 'Worker/index.html'),
-        workerTask: resolve(import.meta.dirname, 'Worker/task.html'),
-        adminIndex: resolve(import.meta.dirname, 'Admin/index.html'),
-        adminDashboard: resolve(import.meta.dirname, 'Admin/dashboard.html'),
-        adminVerifyReports: resolve(import.meta.dirname, 'Admin/verify-reports.html'),
-        adminVerifyCleanup: resolve(import.meta.dirname, 'Admin/verify-cleanup.html'),
-        adminAnalytics: resolve(import.meta.dirname, 'Admin/analytics.html'),
-        adminManagePickups: resolve(import.meta.dirname, 'Admin/manage-pickups.html'),
-        awarenessIndex: resolve(import.meta.dirname, 'Awareness/index.html')
+        main: resolve(__dirname, 'index.html'),
+        login: resolve(__dirname, 'login.html'),
+        citizenIndex: resolve(__dirname, 'Citizen/index.html'),
+        citizenComplaints: resolve(__dirname, 'Citizen/my-complaints.html'),
+        citizenReport: resolve(__dirname, 'Citizen/report.html'),
+        citizenPickup: resolve(__dirname, 'Citizen/pickup.html'),
+        workerIndex: resolve(__dirname, 'Worker/index.html'),
+        workerTask: resolve(__dirname, 'Worker/task.html'),
+        adminIndex: resolve(__dirname, 'Admin/index.html'),
+        adminDashboard: resolve(__dirname, 'Admin/dashboard.html'),
+        adminVerifyReports: resolve(__dirname, 'Admin/verify-reports.html'),
+        adminVerifyCleanup: resolve(__dirname, 'Admin/verify-cleanup.html'),
+        adminAnalytics: resolve(__dirname, 'Admin/analytics.html'),
+        adminManagePickups: resolve(__dirname, 'Admin/manage-pickups.html'),
+        awarenessIndex: resolve(__dirname, 'Awareness/index.html')
       }
     }
   }
